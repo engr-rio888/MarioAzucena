@@ -824,4 +824,27 @@ Please provide a helpful, concise response about Mario's background. Keep respon
                 const aiResponse = data.content.find(block => block.type === 'text')?.text || 'ERROR: Response generation failed. Please retry.';
                 
                 const aiMessageDiv = document.createElement('div');
-                aiMessageDiv.className = 'message ai-message
+                aiMessageDiv.className = 'message ai-message';
+                aiMessageDiv.textContent = aiResponse;
+                messagesContainer.appendChild(aiMessageDiv);
+                
+            } catch (error) {
+                const errorMessageDiv = document.createElement('div');
+                errorMessageDiv.className = 'message ai-message';
+                errorMessageDiv.textContent = 'ERROR: Connection failed. Please retry your query.';
+                messagesContainer.appendChild(errorMessageDiv);
+            }
+            
+            sendBtn.disabled = false;
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('chatModal');
+            if (event.target === modal) {
+                closeChat();
+            }
+        }
+    </script>
+</body>
+</html>
