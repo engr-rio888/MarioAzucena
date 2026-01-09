@@ -767,37 +767,36 @@
             }
         }
 
-        async function sendMessage() {
-            const input = document.getElementById('chatInput');
-            const message = input.value.trim();
-            
-            if (!message) return;
+async function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const message = input.value.trim();
+    
+    if (!message) return;
 
-            const messagesContainer = document.getElementById('chatMessages');
-            const sendBtn = document.getElementById('sendBtn');
-            
-            const userMessageDiv = document.createElement('div');
-            userMessageDiv.className = 'message user-message';
-            userMessageDiv.textContent = message;
-            messagesContainer.appendChild(userMessageDiv);
-            
-            input.value = '';
-            sendBtn.disabled = true;
-            
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    const messagesContainer = document.getElementById('chatMessages');
+    const sendBtn = document.getElementById('sendBtn');
+    
+    const userMessageDiv = document.createElement('div');
+    userMessageDiv.className = 'message user-message';
+    userMessageDiv.textContent = message;
+    messagesContainer.appendChild(userMessageDiv);
+    
+    input.value = '';
+    sendBtn.disabled = true;
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-            try {
-                const response = await fetch('https://api.anthropic.com/v1/messages', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        model: 'claude-sonnet-4-20250514',
-                        max_tokens: 1000,
-                        messages: [{
-                            role: 'user',
-                            content: `You are an AI assistant helping users learn about Mario Azucena's professional background. Here's his resume information:
+    try {
+        const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'sk-d66c0a3d1d1049e6b20ee44f6aa168c2'
+            },
+            body: JSON.stringify({
+                model: 'deepseek-chat',
+                messages: [{
+                    role: 'system',
+                    content: `You are an AI assistant helping users learn about Mario Azucena's professional background. Here's his resume information:
 
 Name: ${resumeData.name}
 Title: ${resumeData.title}
@@ -805,38 +804,39 @@ Summary: ${resumeData.summary}
 Location: ${resumeData.location}
 Company: ${resumeData.company}
 Education: ${resumeData.education}
-
 Certifications: ${resumeData.certifications.join(', ')}
-
 Skills & Expertise: ${resumeData.skills.join(', ')}
-
 Open to Work: ${resumeData.openToWork}
 
-User question: ${message}
+Provide helpful, concise responses under 150 words. Highlight elite-level cybersecurity certifications when relevant.`
+                }, {
+                    role: 'user',
+                    content: message
+                }],
+                max_tokens: 1000,
+                temperature: 0.7
+            })
+        });
 
-Please provide a helpful, concise response about Mario's background. Keep responses under 150 words and be conversational. Highlight his elite-level cybersecurity certifications and expertise when relevant.`
-                        }]
-                    })
-                });
-
-                const data = await response.json();
-                const aiResponse = data.content.find(block => block.type === 'text')?.text || 'ERROR: Response generation failed. Please retry.';
-                
-                const aiMessageDiv = document.createElement('div');
-                aiMessageDiv.className = 'message ai-message';
-                aiMessageDiv.textContent = aiResponse;
-                messagesContainer.appendChild(aiMessageDiv);
-                
-            } catch (error) {
-                const errorMessageDiv = document.createElement('div');
-                errorMessageDiv.className = 'message ai-message';
-                errorMessageDiv.textContent = 'ERROR: Connection failed. Please retry your query.';
-                messagesContainer.appendChild(errorMessageDiv);
-            }
-            
-            sendBtn.disabled = false;
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
+        const data = await response.json();
+        const aiResponse = data.choices?.[0]?.message?.content || 'ERROR: Response generation failed. Please retry.';
+        
+        const aiMessageDiv = document.createElement('div');
+        aiMessageDiv.className = 'message ai-message';
+        aiMessageDiv.textContent = aiResponse;
+        messagesContainer.appendChild(aiMessageDiv);
+        
+    } catch (error) {
+        console.error('API Error:', error);
+        const errorMessageDiv = document.createElement('div');
+        errorMessageDiv.className = 'message ai-message';
+        errorMessageDiv.textContent = 'ERROR: Connection failed. Please retry your query.';
+        messagesContainer.appendChild(errorMessageDiv);
+    }
+    
+    sendBtn.disabled = false;
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
 
         window.onclick = function(event) {
             const modal = document.getElementById('chatModal');
@@ -847,5 +847,4 @@ Please provide a helpful, concise response about Mario's background. Keep respon
     </script>
 </body>
 </html>
-
 
